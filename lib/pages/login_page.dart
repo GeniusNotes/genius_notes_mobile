@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:genius_notes_mobile/pages/response_page.dart';
+import 'package:genius_notes_mobile/services/api.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -9,10 +11,32 @@ class _LoginPageState extends State<LoginPage> {
   final formKey = GlobalKey<FormState>();
 
   final FocusNode passwordFocusNode = FocusNode();
-
-  String login;
-
+  String username;
   String password;
+
+  void login() async {
+    var result1 = await Api.login(username, password);
+    var result2 = await Api.register(username, password);
+
+    var message = '';
+    if (result1 != null) {
+      message = 'Welcome, ${result1.username}';
+    }
+    if (result2 != null) {
+      message = 'Welcome, ${result2.username}';
+    }
+    if (result1 == null && result2 == null) {
+      message = 'Error';
+    }
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) {
+          return ResponsePage(message: message,);
+        }
+      )
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +97,7 @@ class _LoginPageState extends State<LoginPage> {
         FocusScope.of(context).requestFocus(passwordFocusNode);
       },
       onSaved: (String value) {
-        login = value;
+        username = value;
       },
     );
   }
@@ -112,7 +136,7 @@ class _LoginPageState extends State<LoginPage> {
       onPressed: () {
         if (formKey.currentState.validate()) {
           formKey.currentState.save();
-          // login();
+          login();
         }
       },
       child: Text(
