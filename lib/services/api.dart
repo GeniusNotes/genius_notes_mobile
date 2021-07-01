@@ -12,7 +12,6 @@ class Api {
   static var dio = Dio();
   // static const headers = {
   //   'accept': 'application/json',
-  //   // 'Authorization': 'Basic T2JtZW46WmFxMTJ3c3g=',
   //   'Content-Type': 'application/json'
   // };
 
