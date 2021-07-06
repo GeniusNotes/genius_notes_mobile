@@ -1,27 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:genius_notes_mobile/pages/code_verification_page.dart';
-import 'package:genius_notes_mobile/pages/register_page.dart';
+import 'package:genius_notes_mobile/pages/login_page.dart';
 import 'package:genius_notes_mobile/pages/response_page.dart';
 import 'package:genius_notes_mobile/services/api.dart';
 
-class LoginPage extends StatefulWidget {
+class RegisterPage extends StatefulWidget {
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _RegisterPageState createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegisterPageState extends State<RegisterPage> {
   final formKey = GlobalKey<FormState>();
 
-  String user;
+  final FocusNode emailFocusNode = FocusNode();
+  String username;
+  String email;
 
   Future<Map<String, Object>> sendEmail() async {
-    var result = await Api.login(user);
+    var result = await Api.register(username, email);
     return result;
   }
 
-  void login() async {
-    var result = await Api.login(user);
-
+  void register() async {
+    var result = await Api.register(username, email);
     if (result['success']) {
       Navigator.of(context).push(
         MaterialPageRoute(
@@ -30,8 +31,10 @@ class _LoginPageState extends State<LoginPage> {
               username: result['username'],
               email: result['mail'],
               code: result['code'],
-              onVerified: () {},
-              sendAgain: sendEmail
+              onVerified: () async {
+                await Api.createUser(username, email);
+              },
+              sendAgain: sendEmail,
             );
           }
         )
@@ -65,12 +68,14 @@ class _LoginPageState extends State<LoginPage> {
                 child: Column(
                   children: [
                     _loginField(),
+                    SizedBox(height: 30),
+                    _emailField(),
                   ],
                 )
               ),
               SizedBox(height: 50),
-              _loginButton(),
-              _signUpButton(),
+              _registerButton(),
+              _loginButton()
             ]
           ),
         ),
@@ -90,21 +95,44 @@ class _LoginPageState extends State<LoginPage> {
           borderRadius: BorderRadius.circular(5.0),
           borderSide: BorderSide(color: Colors.black),
         ),
-        labelText: "Your username or email",
-        hintText: "geniusnotes.service@gmail.com",
+        labelText: "Your username",
+        hintText: "",
       ),
       // inputFormatters: [phoneFormatter],
       textInputAction: TextInputAction.next,
       onFieldSubmitted: (_) {
         formKey.currentState.validate();
+        FocusScope.of(context).requestFocus(emailFocusNode);
       },
       onSaved: (String value) {
-        user = value;
+        username = value;
       },
     );
   }
 
-  Widget _loginButton() {
+  Widget _emailField() {
+    return TextFormField(
+      focusNode: emailFocusNode,
+      cursorColor: Colors.black,
+      decoration: InputDecoration(
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(5.0),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(5.0),
+          borderSide: BorderSide(color: Colors.black),
+        ),
+        labelText: "Email",
+        hintText: "geniusnotes.service@gmail.com",
+      ),
+      onSaved: (String value) {
+        email = value;
+      },
+    );
+  }
+
+  Widget _registerButton() {
     return MaterialButton(
       color: Colors.black,
       shape: RoundedRectangleBorder(
@@ -115,11 +143,11 @@ class _LoginPageState extends State<LoginPage> {
       onPressed: () {
         if (formKey.currentState.validate()) {
           formKey.currentState.save();
-          login();
+          register();
         }
       },
       child: Text(
-        'Login',
+        'Sign up',
         style: TextStyle(
           color: Colors.white,
           fontSize: 16,
@@ -129,19 +157,19 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _signUpButton() {
+  Widget _loginButton() {
     return TextButton(
       onPressed: () {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) {
-              return RegisterPage();
+              return LoginPage();
             }
           )
         );
       }, 
       child: Text(
-        'Not on GeniusNotes yet? Sign up',
+        'Already have an account? Login',
         style: TextStyle(
           color: Colors.black
         ),
