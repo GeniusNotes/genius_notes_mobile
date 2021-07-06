@@ -93,7 +93,7 @@ class _CodeVerificationPageState extends State<CodeVerificationPage> {
         }
       },
       validator: (value) {
-        return value == widget.code? null: 'wrong code';
+        return value == code? null: 'wrong code';
       },
     );
   }
