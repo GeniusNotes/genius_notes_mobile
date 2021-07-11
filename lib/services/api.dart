@@ -1,6 +1,7 @@
 import 'dart:convert';
 
-import 'package:genius_notes_mobile/models/profile.dart';
+import 'package:genius_notes_mobile/models/note.dart';
+import 'package:genius_notes_mobile/models/notes.dart';
 import 'package:http/http.dart' as http;
 
 class Api {
@@ -8,7 +9,7 @@ class Api {
   static const registerUrl = baseUrl + 'register';
   static const loginUrl = baseUrl + 'login';
   static const createUserUrl = baseUrl + 'createUser';
-  static const logoutUrl = baseUrl + 'logout';
+  static const getNotesUrl = baseUrl + 'getNotes';
   static const headers = {
     'accept': 'application/json',
     'token': 'xdxdxd',
@@ -56,5 +57,23 @@ class Api {
     var json = jsonDecode(response.body);
 
     return json;
+  }
+
+  static Future<Notes> getNotes(String username) async {
+    var uriUrl = Uri.parse(getNotesUrl);
+    var response = await http.post(
+      uriUrl,
+      headers: headers,
+      body: jsonEncode({
+        'username': username,
+      })
+    );
+    var json = jsonDecode(response.body);
+
+    print('get Notes');
+    print(json);
+
+    var personalNotes = (json['notes'] as List<dynamic>).map((objectJson) => Note.fromJson(jsonDecode(objectJson))).toList();
+    return Notes(personalNotes: personalNotes);
   }
 }

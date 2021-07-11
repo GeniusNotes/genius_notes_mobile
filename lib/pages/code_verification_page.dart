@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:genius_notes_mobile/pages/notes_page/notes_page.dart';
 import 'package:genius_notes_mobile/pages/response_page.dart';
 
 class CodeVerificationPage extends StatefulWidget {
@@ -87,7 +88,10 @@ class _CodeVerificationPageState extends State<CodeVerificationPage> {
           widget.onVerified.call();
 
           Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (_) => ResponsePage(message: "Success, ${widget.username}")),
+            MaterialPageRoute(
+              // builder: (_) => ResponsePage(message: "Success, ${widget.username}")
+              builder: (_) => NotesPage()
+            ),
             (route) => false
           );
         }

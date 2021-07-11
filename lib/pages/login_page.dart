@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:genius_notes_mobile/models/app_state.dart';
+import 'package:genius_notes_mobile/models/profile.dart';
 import 'package:genius_notes_mobile/pages/code_verification_page.dart';
 import 'package:genius_notes_mobile/pages/register_page.dart';
 import 'package:genius_notes_mobile/pages/response_page.dart';
 import 'package:genius_notes_mobile/services/api.dart';
+import 'package:genius_notes_mobile/services/local_storage.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -19,10 +23,21 @@ class _LoginPageState extends State<LoginPage> {
     return result;
   }
 
-  void login() async {
+  void login(BuildContext context) async {
     var result = await Api.login(user);
+    var appState = Provider.of<AppState>(context, listen: false);
 
     if (result['success']) {
+      appState.profile = Profile(
+        username: result['username'],
+        email: result['mail']
+      );
+
+      LocalStorage.saveProfile(appState.profile);
+
+      var newNotes = await Api.getNotes(appState.profile.username);
+      appState.notes = newNotes;
+
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (_) {
@@ -69,7 +84,7 @@ class _LoginPageState extends State<LoginPage> {
                 )
               ),
               SizedBox(height: 50),
-              _loginButton(),
+              _loginButton(context),
               _signUpButton(),
             ]
           ),
@@ -104,7 +119,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _loginButton() {
+  Widget _loginButton(BuildContext context) {
     return MaterialButton(
       color: Colors.black,
       shape: RoundedRectangleBorder(
@@ -115,7 +130,7 @@ class _LoginPageState extends State<LoginPage> {
       onPressed: () {
         if (formKey.currentState.validate()) {
           formKey.currentState.save();
-          login();
+          login(context);
         }
       },
       child: Text(
