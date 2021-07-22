@@ -10,6 +10,8 @@ class Api {
   static const loginUrl = baseUrl + 'login';
   static const createUserUrl = baseUrl + 'createUser';
   static const getNotesUrl = baseUrl + 'getNotes';
+  static const createNoteUrl = baseUrl + 'createNote';
+  static const modifyNoteUrl = baseUrl + 'modifyNote';
   static const headers = {
     'accept': 'application/json',
     'token': 'xdxdxd',
@@ -75,5 +77,31 @@ class Api {
 
     var personalNotes = (json['notes'] as List<dynamic>).map((objectJson) => Note.fromJson(jsonDecode(objectJson))).toList();
     return Notes(personalNotes: personalNotes);
+  }
+
+  static Future createNote(String username) async {
+    var uriUrl = Uri.parse(createNoteUrl);
+    var response = await http.post(
+      uriUrl,
+      headers: headers,
+      body: jsonEncode({
+        'username': username,
+      })
+    );
+
+    var json = jsonDecode(response.body);
+  }
+
+  static Future modifyNote(Note note) async {
+    var uriUrl = Uri.parse(modifyNoteUrl);
+    var response = await http.post(
+      uriUrl,
+      headers: headers,
+      body: jsonEncode(note.toJson())
+    );
+
+    print(note.toJson());
+
+    // var json = jsonDecode(response.body);
   }
 }

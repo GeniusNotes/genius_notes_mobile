@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:genius_notes_mobile/models/app_state.dart';
 import 'package:genius_notes_mobile/models/notes.dart';
+import 'package:genius_notes_mobile/pages/note_page/note_page.dart';
 import 'package:genius_notes_mobile/services/api.dart';
 import 'package:provider/provider.dart';
 
@@ -39,37 +40,52 @@ class _NotesPageState extends State<NotesPage> {
         title: Text('Notes'),
         centerTitle: true,
       ),
-      body: Container(
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
-          child: ListView(
-            children: <Widget>[SizedBox(height: 10)] + notes.personalNotes.map((note) {
-              return Padding(
-                padding: EdgeInsets.fromLTRB(0, 15, 0, 0),
-                child: Container(
-                  padding: EdgeInsets.all(5),
-                  width: MediaQuery.of(context).size.width * 9 / 10,
-                  decoration: BoxDecoration(
-                    border: Border.all(),
-                    borderRadius: BorderRadius.all(Radius.circular(5))
+      body: RefreshIndicator(
+        onRefresh: () async {
+          var appState = Provider.of<AppState>(context, listen: false);
+          await updateNotes(appState);
+        },
+        child: Container(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
+            child: ListView(
+              children: <Widget>[SizedBox(height: 10)] + notes.personalNotes.map((note) {
+                return Padding(
+                  padding: EdgeInsets.fromLTRB(0, 15, 0, 0),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(builder: (_) {
+                        return NotePage(note: note);
+                      }));
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(5),
+                      width: MediaQuery.of(context).size.width * 9 / 10,
+                      decoration: BoxDecoration(
+                        border: Border.all(),
+                        borderRadius: BorderRadius.all(Radius.circular(5))
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(note.title, style: TextStyle(fontWeight: FontWeight.bold),),
+                          Text(note.text, overflow: TextOverflow.ellipsis, maxLines: 1,)
+                        ]
+                      ),
+                    ),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(note.title, style: TextStyle(fontWeight: FontWeight.bold),),
-                      Text(note.text, overflow: TextOverflow.ellipsis, maxLines: 1,)
-                    ]
-                  ),
-                ),
-              );
-            }).toList()
+                );
+              }).toList()
+            ),
           ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
-        onPressed: () {
-
+        onPressed: () async {
+          var appState = Provider.of<AppState>(context, listen: false);
+          await Api.createNote(appState.profile.username);
+          await updateNotes(appState);
         }
       ),
     );

@@ -10,8 +10,7 @@ class Note {
   factory Note.fromJson(Map<String, Object> json) {
     return Note(
       id: json['noteid'],
-      owner: json['owner'],
-      // hasAccess: json['hasAccess'],
+      owner: json['username'],
       title: json['title'],
       text: json['text'],
     );
@@ -19,11 +18,10 @@ class Note {
 
   Map<String, Object> toJson() {
     return {
-      'id': id,
+      'noteid': id,
       'username': owner,
       'newTitle': title,
-      'newNote': text,
-      // 'hasAccess': hasAccess,
+      'text': text,
     };
   }
 }
